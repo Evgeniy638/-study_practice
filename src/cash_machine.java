@@ -14,12 +14,10 @@ public class cash_machine {
     };
 
     public static void main(String[] args) {
-//        int[] count_banknotes = enter_count_banknotes();
-//        int amount = enter_amount();
-//        int[] count_result_banknotes = get_count_result_banknotes(count_banknotes, amount);
-//        show_result(count_result_banknotes);
-
-        start_test();
+        int[] count_banknotes = enter_count_banknotes();
+        int amount = enter_amount();
+        int[] count_result_banknotes = get_count_result_banknotes(count_banknotes, amount);
+        show_result(count_result_banknotes);
     }
 
     private static void start_test(){
@@ -90,20 +88,11 @@ public class cash_machine {
             }
         }
 
-        int prevAmount = amount;
-
         for (int i = 0; i < face_value_banknotes.length; i++) {
             while (amount >= face_value_banknotes[i] && count_banknotes[i] > 0){
                 amount -= face_value_banknotes[i];
                 count_banknotes[i]--;
                 count_result_banknotes[i]++;
-
-//                if(prevAmount % 30 == 0 && amount % 30 != 0){
-//                    amount = prevAmount;
-//                    break;
-//                }else if(prevAmount != amount){
-//                    prevAmount = amount;
-//                }
             }
         }
 
