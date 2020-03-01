@@ -1,4 +1,9 @@
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.Stack;
 
 import static java.lang.System.out;
 
@@ -6,114 +11,114 @@ public class cash_machine {
 
     private static Scanner in = new Scanner(System.in);
 
-    private static final int[] face_value_banknotes = {
-            1000,
-            500,
-            100,
-            30
-    };
-
     public static void main(String[] args) {
-        int[] count_banknotes = enter_count_banknotes();
-        int amount = enter_amount();
-        int[] count_result_banknotes = get_count_result_banknotes(count_banknotes, amount);
-        show_result(count_result_banknotes);
+        out.println("Введите выражение:");
+        String expression = in.nextLine();
+
+        if(expression.charAt(0) == '-')
+            expression = "0" + expression;
+
+        if(expression.charAt(expression.length() - 1) == '=')
+            expression = expression.substring(0, expression.length() - 1);
+
+        String[] arr = expression.split(" ");
+
+        ArrayList<String> arrayList = getPolishNotation(arr);
+
+       BigDecimal result = new BigDecimal(getResult(arrayList));
+       out.println("Ответ: " + result.setScale(3, RoundingMode.CEILING).stripTrailingZeros());
     }
 
-    private static void start_test(){
-        int[][] counts_banknotes = {
-                {100, 100, 100, 100},
-                {0, 0, 1, 4},
-                {99, 1, 4, 3},
-                {0, 0, 5, 0},
-                {100, 100, 100, 0},
-                {100, 100, 0, 0},
-                {100, 0, 0, 0},
-                {0, 0, 0, 0},
-        };
+    private static double getResult(ArrayList<String> arr){
+        ArrayList<Double> doubles = new ArrayList<>();
 
-        int[] amounts = {
-                4620,
-                220,
-                99990,
-                500,
-                90,
-                100,
-                500,
-                1000
-        };
+        for (int i = 0; i < arr.size(); i++){
+            if(isDouble(arr.get(i))){
+                doubles.add(Double.parseDouble(arr.get(i)));
+            }else if(arr.get(i).equals("+")){
+                double tmp = doubles.get(doubles.size() - 2) + doubles.get(doubles.size() - 1);
 
-        for (int i = 0; i < amounts.length; i++){
-            out.print("\n\n");
+                doubles.remove(doubles.size() - 1);
+                doubles.remove(doubles.size() - 1);
 
-            for (int count: counts_banknotes[i]) {
-                out.print(count + " ");
-            }
+                doubles.add(tmp);
+            }else if(arr.get(i).equals("-")){
+                double tmp = doubles.get(doubles.size() - 2) - doubles.get(doubles.size() - 1);
 
-            out.print("\n" + amounts[i]);
+                doubles.remove(doubles.size() - 1);
+                doubles.remove(doubles.size() - 1);
 
-            int[] count_result_banknotes = get_count_result_banknotes(counts_banknotes[i], amounts[i]);
-            show_result(count_result_banknotes);
-        }
-    }
+                doubles.add(tmp);
+            }else if(arr.get(i).equals("*")){
+                double tmp = doubles.get(doubles.size() - 2) * doubles.get(doubles.size() - 1);
 
-    private static int[] enter_count_banknotes(){
-        int[] count_banknotes = new int[face_value_banknotes.length];
+                doubles.remove(doubles.size() - 1);
+                doubles.remove(doubles.size() - 1);
 
-        for (int i = 0; i < face_value_banknotes.length; i++){
-            out.print("Введите количество банкнот с номиналом в " + face_value_banknotes[i] + ": ");
-            count_banknotes[i] = in.nextInt();
-        }
+                doubles.add(tmp);
+            }else {
+                double tmp = doubles.get(doubles.size() - 2) / doubles.get(doubles.size() - 1);
 
-        return count_banknotes;
-    }
+                doubles.remove(doubles.size() - 1);
+                doubles.remove(doubles.size() - 1);
 
-    private static int enter_amount(){
-        out.print("Введите сумму, которую нужно выдать: ");
-        int amount = in.nextInt();
-        out.println();
-
-        return  amount;
-    }
-
-    private static int[] get_count_result_banknotes(int[] count_banknotes, int amount){
-        int[] count_result_banknotes = new int[face_value_banknotes.length];
-
-        for (int i = face_value_banknotes.length - 1; i >= 0 ; i--) {
-            while ((i == 0 || amount % face_value_banknotes[i - 1] != 0)
-                    && amount >= face_value_banknotes[i] && count_banknotes[i] > 0){
-                amount -= face_value_banknotes[i];
-                count_banknotes[i]--;
-                count_result_banknotes[i]++;
+                doubles.add(tmp);
             }
         }
 
-        for (int i = 0; i < face_value_banknotes.length; i++) {
-            while (amount >= face_value_banknotes[i] && count_banknotes[i] > 0){
-                amount -= face_value_banknotes[i];
-                count_banknotes[i]--;
-                count_result_banknotes[i]++;
+        return doubles.get(0);
+    }
+
+    private static ArrayList<String> getPolishNotation(String[] arr){
+        ArrayList<String> newArr = new ArrayList<>();
+        Stack<String> stack = new Stack<>();
+
+        for(int i = 0; i < arr.length; i++){
+            if(isDouble(arr[i])){
+                newArr.add(arr[i]);
+            }else if(arr[i].equals(")")){
+
+                while (!stack.peek().equals("(")){
+                    newArr.add(stack.pop());
+                }
+
+                stack.pop();
+
+            }else if(arr[i].equals("+") || arr[i].equals("-")) {
+                while (!stack.empty() && (stack.peek().equals("+") || stack.peek().equals("-") ||
+                        stack.peek().equals("*") || stack.peek().equals("/"))){
+                    newArr.add(stack.pop());
+                }
+
+                stack.push(arr[i]);
+            }else if(arr[i].equals("*") || arr[i].equals("/")) {
+                while (!stack.empty() && (stack.peek().equals("*") || stack.peek().equals("/"))){
+                    newArr.add(stack.pop());
+                }
+
+                stack.push(arr[i]);
+            }else{
+                stack.push(arr[i]);
             }
         }
 
-        if(amount > 0) return null;
+        while (!stack.empty()){
+            newArr.add(stack.pop());
+        }
 
-        return count_result_banknotes;
+        return newArr;
     }
 
-    private static void show_result(int[] count_result_banknotes){
-
-        out.println("\nРезультат:");
-
+    private static boolean isDouble(String s) throws NumberFormatException {
         try {
-            for (int i = 0; i < face_value_banknotes.length; i++){
-                out.print((i + 1) + ") количество банкнот с номиналом в " +
-                        face_value_banknotes[i] + ": " + count_result_banknotes[i]);
-                out.println();
-            }
-        }catch (NullPointerException e){
-            out.print("Такую сумму нельзя выдать текущими банкнотами");
+            Double.parseDouble(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
-
     }
 }
+
+//123 + 12 * 10 / 6 - 1
+//123 + 12 * 10 / 21 - 1
+//( 1.2 + 2.1 / 3 ) * ( 13 + 5 )
