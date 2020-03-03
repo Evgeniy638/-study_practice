@@ -49,8 +49,15 @@ public class cash_machine {
                 doubles.remove(doubles.size() - 1);
 
                 doubles.add(tmp);
-            }else if(arr.get(i).equals("*")){
+            }else if(arr.get(i).equals("*")) {
                 double tmp = doubles.get(doubles.size() - 2) * doubles.get(doubles.size() - 1);
+
+                doubles.remove(doubles.size() - 1);
+                doubles.remove(doubles.size() - 1);
+
+                doubles.add(tmp);
+            }else if(arr.get(i).equals("^")){
+                double tmp = Math.pow(doubles.get(doubles.size() - 2), doubles.get(doubles.size() - 1));
 
                 doubles.remove(doubles.size() - 1);
                 doubles.remove(doubles.size() - 1);
@@ -92,7 +99,14 @@ public class cash_machine {
 
                 stack.push(arr[i]);
             }else if(arr[i].equals("*") || arr[i].equals("/")) {
-                while (!stack.empty() && (stack.peek().equals("*") || stack.peek().equals("/"))){
+                while (!stack.empty() && (stack.peek().equals("*") || stack.peek().equals("/"))) {
+                    newArr.add(stack.pop());
+                }
+
+                stack.push(arr[i]);
+
+            }else if (arr[i].equals("^")){
+                if (!stack.empty() && stack.peek().equals("^")){
                     newArr.add(stack.pop());
                 }
 
@@ -122,3 +136,4 @@ public class cash_machine {
 //123 + 12 * 10 / 6 - 1
 //123 + 12 * 10 / 21 - 1
 //( 1.2 + 2.1 / 3 ) * ( 13 + 5 )
+//23 * ( ( 5 + 2 ) * 8 ) - 4 ^ 3
