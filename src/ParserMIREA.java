@@ -29,6 +29,8 @@ public class ParserMIREA {
         String basePath = "C:/Zhenya/университет/практика/MIREA/";
 
         try {
+            nameDirectory = nameDirectory.replaceAll("\"", "'");
+            System.out.println(nameDirectory);
             new File(basePath + nameDirectory).mkdirs();
 
             Document document = Jsoup.connect(baseURL + link).get();
@@ -40,7 +42,6 @@ public class ParserMIREA {
 
                 String fileName = url.getFile();
                 String destName = basePath + nameDirectory + fileName.substring(fileName.lastIndexOf("/"));
-                System.out.println(destName);
 
                 InputStream is = url.openStream();
                 OutputStream os = new FileOutputStream(destName);
