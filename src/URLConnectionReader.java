@@ -1,5 +1,3 @@
-import com.pengrad.telegrambot.model.Message;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -7,7 +5,6 @@ import org.json.JSONObject;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 public class URLConnectionReader extends Thread{
     private final static String key = "&appid=794fd93fd7e0c10ee376d9e89b082808";
@@ -15,26 +12,36 @@ public class URLConnectionReader extends Thread{
     private final static String lang = "&lang=ru";
 
     private String city;
-    private final String country;
+    private String country;
     private WeatherSetter weatherSetter;
+
+    private String urlString;
+
+    URLConnectionReader(String city, WeatherSetter weatherSetter){
+        this.city = city;
+        this.weatherSetter = weatherSetter;
+
+        this.urlString = baseURL + city + key + lang;
+    }
 
     URLConnectionReader(String city, String country, WeatherSetter weatherSetter){
         this.city = city;
         this.country = country;
         this.weatherSetter = weatherSetter;
+
+        this.urlString = baseURL + city + "," + country + key + lang;
     }
 
     @Override
     public void run() {
-        ArrayList<Weather> weathers = getWeather(city, country);
-        weatherSetter.setResult(weathers.get(0));
+        weatherSetter.setResult(getWeather(city, country));
     }
 
-    public ArrayList<Weather> getWeather(String city, String country){
-        ArrayList<Weather> weathers = new ArrayList<>();
+    public Weather getWeather(String city, String country){
+        Weather weather = null;
 
         try {
-            URL openWeather = new URL(baseURL + city + "," + country + key + lang);
+            URL openWeather = new URL(urlString);
             URLConnection urlConnection = openWeather.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     urlConnection.getInputStream()));
@@ -48,24 +55,21 @@ public class URLConnectionReader extends Thread{
             JSONObject jsonObject = new JSONObject(jsonLine);
             JSONArray list = (JSONArray)jsonObject.get("list");
 
-            for (int i = 0; i < list.length(); i++) {
-                JSONObject item = (JSONObject)list.get(i);
 
-                JSONObject main = (JSONObject)item.get("main");
-                JSONObject clouds = (JSONObject) item.get("clouds");
-                JSONObject wind = (JSONObject) item.get("wind");
+            JSONObject item = (JSONObject)list.get(0);
 
-                weathers.add(new Weather(main.getDouble("temp"), main.getDouble("humidity"),
-                        clouds.getDouble("all"), wind.getDouble("speed")));
-            }
-        } catch (MalformedURLException e) {
+            JSONObject main = (JSONObject)item.get("main");
+            JSONArray weatherJSONArray = (JSONArray) item.get("weather");
+            JSONObject clouds = weatherJSONArray.getJSONObject(0);
+            JSONObject wind = (JSONObject) item.get("wind");
+
+            weather = new Weather(main.getDouble("temp"), main.getDouble("humidity"),
+                    clouds.getString("description"), wind.getDouble("speed"));
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+            return null;
         }
 
-        return weathers;
+        return weather;
     }
 }

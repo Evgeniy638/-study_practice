@@ -1,29 +1,29 @@
 public class Weather {
-    private double temperature;
-    private double humidity;
-    private double clouds;
-    private double windSpeed;
+    private long temperature;
+    private long humidity;
+    private String clouds;
+    private long windSpeed;
 
-    public Weather(double temperature, double humidity, double clouds, double windSpeed) {
-        this.temperature = temperature - 273;
-        this.humidity = humidity;
+    public Weather(double temperature, double humidity, String clouds, double windSpeed) {
+        this.temperature = Math.round(temperature - 273);
+        this.humidity = Math.round(humidity);
         this.clouds = clouds;
-        this.windSpeed = windSpeed;
+        this.windSpeed = Math.round(windSpeed);
     }
 
-    public double getTemperature() {
+    public long getTemperature() {
         return temperature;
     }
 
-    public double getHumidity() {
+    public long getHumidity() {
         return humidity;
     }
 
-    public double getClouds() {
+    public String getClouds() {
         return clouds;
     }
 
-    public double getWindSpeed() {
+    public long getWindSpeed() {
         return windSpeed;
     }
 }
