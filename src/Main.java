@@ -28,7 +28,7 @@ public class Main {
                         return;
                     }
 
-                    String stringBuilder = "Погода в городе " + strings[0];
+                    String stringBuilder = "Погода в городе " + weather.getName();
 
                     if (strings.length == 2)
                         stringBuilder += " в стране " + strings[1];

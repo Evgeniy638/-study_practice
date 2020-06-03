@@ -55,6 +55,7 @@ public class URLConnectionReader extends Thread{
             JSONObject jsonObject = new JSONObject(jsonLine);
             JSONArray list = (JSONArray)jsonObject.get("list");
 
+            String name = jsonObject.getJSONObject("city").getString("name");
 
             JSONObject item = (JSONObject)list.get(0);
 
@@ -64,7 +65,7 @@ public class URLConnectionReader extends Thread{
             JSONObject wind = (JSONObject) item.get("wind");
 
             weather = new Weather(main.getDouble("temp"), main.getDouble("humidity"),
-                    clouds.getString("description"), wind.getDouble("speed"));
+                    clouds.getString("description"), wind.getDouble("speed"), name);
         } catch (IOException | JSONException e) {
             e.printStackTrace();
             return null;
